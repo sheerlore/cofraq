@@ -1,3 +1,5 @@
+// ================================================
+// Display
 export function toHalfWidth(str: string): string {
   return str.replace(/[０-９]/g, (s: string) =>
     String.fromCharCode(s.charCodeAt(0) - 0xfee0)
@@ -26,6 +28,15 @@ export function makeGraphText(arr: number[]): string {
     }
   });
   return res;
+}
+// ================================================
+// Graph
+export function countVertex(arr: number[]): number {
+  return arr.reduce((cur, ele) => cur + ele, 0) + 1;
+}
+
+export function countArrow(arr: number[]): number {
+  return arr.reduce((cur, ele) => cur + ele, 0);
 }
 
 export function calclatePatern(arr: number[]): number[] {

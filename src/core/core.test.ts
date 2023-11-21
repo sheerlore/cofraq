@@ -1,5 +1,7 @@
 import { expect, test, describe } from "vitest";
 import {
+  countArrow,
+  countVertex,
   makeGraphText,
   toHalfWidth,
   toNumberArray,
@@ -44,5 +46,21 @@ describe("basic function", () => {
     { in: [0, 2, 0], expected: "○ → ○ → ○" },
   ])("makeGraphText($in) -> $expected", (v) => {
     expect(makeGraphText(v.in)).toBe(v.expected);
+  });
+
+  test.each([
+    { in: [2, 3, 3, 2], expected: 11 },
+    { in: [1, 2, 2, 1], expected: 7 },
+    { in: [1, 1, 1, 1], expected: 5 },
+  ])("countVertex($in) -> $expected", (v) => {
+    expect(countVertex(v.in)).toStrictEqual(v.expected);
+  });
+
+  test.each([
+    { in: [2, 3, 3, 2], expected: 10 },
+    { in: [1, 2, 2, 1], expected: 6 },
+    { in: [1, 1, 1, 1], expected: 4 },
+  ])("countArrow($in) -> $expected", (v) => {
+    expect(countArrow(v.in)).toStrictEqual(v.expected);
   });
 });
