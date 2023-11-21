@@ -18,9 +18,7 @@ $$
 
 2. この数字の両端を$-1$する
 
-   $$
-   \longrightarrow  (2, 1, 1, 0)
-   $$
+$$\rightarrow  (2, 1, 1, 0)$$
 
 3. この数字に対して（左、右、左、右、...　）の順番で数字の数だけ向き付け矢印を書く。このときの頂点は適当に取る
 
@@ -32,50 +30,37 @@ $$
 
 - 0 個
 
-  $$
-  \text{○} \leftarrow \text{○} \leftarrow \text{○} \rightarrow \text{○} \leftarrow \text{○}
-  $$
+$$\text{○} \leftarrow \text{○} \leftarrow \text{○} \rightarrow \text{○} \leftarrow \text{○}$$
 
 - 1 個
-  $$
-  \text{●} \leftarrow \text{○} \leftarrow \text{○} \rightarrow \text{○} \leftarrow \text{○}
-  $$
-  $$
-  \text{○} \leftarrow \text{○} \leftarrow \text{○} \rightarrow \text{●} \leftarrow \text{○}
-  $$
+
+$$\text{●} \leftarrow \text{○} \leftarrow \text{○} \rightarrow \text{○} \leftarrow \text{○}$$
+
+$$\text{○} \leftarrow \text{○} \leftarrow \text{○} \rightarrow \text{●} \leftarrow \text{○}$$
+
 - 2 個
-  $$
-  \text{●} \leftarrow \text{●} \leftarrow \text{○} \rightarrow \text{○} \leftarrow \text{○}
-  $$
-  $$
-  \text{○} \leftarrow \text{○} \leftarrow \text{○} \rightarrow \text{●} \leftarrow \text{●}
-  $$
-  $$
-  \text{●} \leftarrow \text{○} \leftarrow \text{○} \rightarrow \text{●} \leftarrow \text{○}
-  $$
+
+$$\text{●} \leftarrow \text{●} \leftarrow \text{○} \rightarrow \text{○} \leftarrow \text{○}$$
+
+$$\text{○} \leftarrow \text{○} \leftarrow \text{○} \rightarrow \text{●} \leftarrow \text{●}$$
+
+$$\text{●} \leftarrow \text{○} \leftarrow \text{○} \rightarrow \text{●} \leftarrow \text{○}$$
+
 - 3 個
 
-  $$
-  \text{●} \leftarrow \text{●} \leftarrow \text{○} \rightarrow \text{●} \leftarrow \text{○}
-  $$
+$$\text{●} \leftarrow \text{●} \leftarrow \text{○} \rightarrow \text{●} \leftarrow \text{○}$$
 
-  $$
-  \text{●} \leftarrow \text{○} \leftarrow \text{○} \rightarrow \text{●} \leftarrow \text{●}
-  $$
+$$\text{●} \leftarrow \text{○} \leftarrow \text{○} \rightarrow \text{●} \leftarrow \text{●}$$
 
 - 4 個
-  $$
-  \text{●} \leftarrow \text{●} \leftarrow \text{○} \rightarrow \text{●} \leftarrow \text{●}
-  $$
 
-$$
-\text{●} \leftarrow \text{●} \leftarrow \text{●} \rightarrow \text{●} \leftarrow \text{○}
-$$
+$$\text{●} \leftarrow \text{●} \leftarrow \text{○} \rightarrow \text{●} \leftarrow \text{●}$$
+
+$$\text{●} \leftarrow \text{●} \leftarrow \text{●} \rightarrow \text{●} \leftarrow \text{○}$$
 
 - 5 個
-  $$
-  \text{●} \leftarrow \text{●} \leftarrow \text{●} \rightarrow \text{●} \leftarrow \text{●}
-  $$
+
+$$\text{●} \leftarrow \text{●} \leftarrow \text{●} \rightarrow \text{●} \leftarrow \text{●}$$
 
 5. まとめ
 
