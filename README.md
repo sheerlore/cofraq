@@ -26,7 +26,9 @@ $$
 \text{○} \leftarrow \text{○} \leftarrow \text{○} \rightarrow \text{○} \leftarrow \text{○}
 $$
 
-4. 「$\text{●} \rightarrow \text{○}$」がないというルールで黒く塗りつぶしていく。黒く塗る個数ごとに何パターンあるか数える
+4. 次のルールで黒く塗りつぶしていく。黒く塗る個数ごとに何パターンあるか数える
+
+$$\text{ルール：} \text{●} \rightarrow \text{○} \text{ の部分がない} $$
 
 - 0 個
 
