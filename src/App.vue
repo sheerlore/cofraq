@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { makeAdjMat, makeGraphText, toNumberArray, makePertternGraphText } from './core/core.ts'
+import { makeAdjMat, makeGraphText, toNumberArray, makePertternGraphText, calclatePattern } from './core/core.ts'
 
 const sequenceText = ref("")
 const sequenceArray = computed(() => toNumberArray(sequenceText.value))
 const text = computed(() => makeGraphText(sequenceArray.value))
 const mat = computed(() => makeAdjMat(sequenceArray.value))
 const tx = computed(() => makePertternGraphText([0, 1, 1, 1, 1], sequenceArray.value))
+const pt = computed(() => calclatePattern(mat.value))
 </script>
 
 <template>
@@ -37,6 +38,10 @@ const tx = computed(() => makePertternGraphText([0, 1, 1, 1, 1], sequenceArray.v
 
     <div class="w-full max-w-fit px-5 py-5 my-5 border">
       {{ tx }}
+    </div>
+
+    <div class="w-full max-w-fit px-5 py-5 my-5 border">
+      {{ pt }}
     </div>
   </div>
 </template>

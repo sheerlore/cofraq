@@ -104,21 +104,25 @@ export function makeAdjMat(seq: Sequence): AdjMat | undefined {
   return mat;
 }
 
-export function calclatePattern(mat: AdjMat): PatternArray {
+export function calclatePattern(mat?: AdjMat): PatternArray {
+  if (mat === undefined) return {};
   const vertex_num = mat.length;
-  const res: PatternArray = {
+  let res: PatternArray = {
     0: [new Array(vertex_num).fill(0)],
   };
   for (let n = 1; n <= vertex_num; n++) {
+    res[n] = [];
     // n = 1
-    let temp = new Array(vertex_num).fill(0);
-    for (let i = 0; i < vertex_num - 1; i++) {
-      if (checkOne(mat, i)) {
-        temp[i] = 1;
-        res[n].push(temp);
+    if (n === 1) {
+      for (let i = 0; i < vertex_num; i++) {
+        let temp = new Array(vertex_num).fill(0);
+        if (checkOne(mat, i)) {
+          temp[i] = 1;
+          res[n].push(temp);
+        }
       }
-      temp[i] = 0;
     }
+    // n - 1個のパターンを使って探索する。
   }
 
   return res;
