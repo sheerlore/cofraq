@@ -2,6 +2,8 @@ import { expect, test, describe } from "vitest";
 import {
   countArrow,
   countVertex,
+  makeAdjMat,
+  makeBWString,
   makeGraphText,
   toHalfWidth,
   toNumberArray,
@@ -62,5 +64,22 @@ describe("basic function", () => {
     { in: [1, 1, 1, 1], expected: 4 },
   ])("countArrow($in) -> $expected", (v) => {
     expect(countArrow(v.in)).toStrictEqual(v.expected);
+  });
+
+  test("makeAdjMat", () => {
+    // 0    1    2    3    4
+    // ● <- ● <- ● -> ● <- ●
+    expect(makeAdjMat([2, 1, 1, 0])).toStrictEqual([
+      [0, 0, 0, 0, 0],
+      [1, 0, 0, 0, 0],
+      [0, 1, 0, 1, 0],
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 1, 0],
+    ]);
+  });
+
+  test("makeBWString", () => {
+    expect(makeBWString([0, 0, 1, 0, 0])).toStrictEqual("□□■□□");
+    expect(makeBWString([1, 1, 1, 1, 1])).toStrictEqual("■■■■■");
   });
 });
