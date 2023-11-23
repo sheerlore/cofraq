@@ -8,18 +8,24 @@ const graph = computed(() => makeGraphText(sequenceArray.value))
 const mat = computed(() => makeAdjMat(sequenceArray.value))
 const pattern = ref<Patterns | undefined>()
 const patCount = ref()
+const isLoading = ref(false)
 
 watch(sequenceArray, () => {
   pattern.value = undefined
   patCount.value = undefined
 })
 
-function patternCalclate(mat?: AdjMat) {
-  console.log("CLICK")
+const tableColor = (ch: number) => ch === 1 ? "bg-red-400" : "";
+
+async function patternCalclate(mat?: AdjMat) {
   if (mat === undefined) return
-  const patternArray = calclatePattern(mat);
-  pattern.value = patternArray;
-  patCount.value = countPatternsNum(pattern.value)
+  isLoading.value = true
+  const patternArray = await calclatePattern(mat);
+  setTimeout(() => { // これはなんとなく
+    pattern.value = patternArray;
+    patCount.value = countPatternsNum(pattern.value)
+    isLoading.value = false
+  }, 1000);
 }
 
 </script>
@@ -29,7 +35,7 @@ function patternCalclate(mat?: AdjMat) {
 
     <div class="w-full max-w-xs px-5 py-5 my-5 border">
       <label class="block text-gray-700 text-sm font-bold mb-2" for="sequence">
-        数列入力
+        入力
       </label>
       <input
         class="shadow appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -37,35 +43,42 @@ function patternCalclate(mat?: AdjMat) {
     </div>
 
     <div v-if="graph" class="w-full max-w-fit px-5 py-5 my-5 border">
+      <label class="block text-gray-700 text-sm font-bold mb-2" for="sequence">
+        グラフ
+      </label>
       {{ graph }}
     </div>
 
     <div v-if="mat" class="w-full max-w-fit px-5 py-5 my-5 border">
+      <label class="block text-gray-700 text-sm font-bold mb-2" for="sequence">
+        隣接行列
+      </label>
       <table>
         <tr class="" v-for="(arr, index) in mat" :key="index">
           <template v-for="ch in arr">
-            <td class="w-7 h-7 border text-center">{{ ch }}</td>
+            <td class="w-8 h-8 border text-center hover:bg-gray-200" :class="tableColor(ch)">{{ ch }}</td>
           </template>
         </tr>
       </table>
     </div>
 
     <div v-if="sequenceArray" class="w-full max-w-fit px-5 py-5 my-5 border">
-      <button class=" bg-slate-300 px-5 py-4 shadow-md hover:shadow-lg" @click="patternCalclate(mat)">Pattern
-        Output</button>
+      <button class="bg-slate-300 px-5 py-4 shadow-md hover:shadow-lg" @click="patternCalclate(mat)">
+        <span v-if="isLoading">Pattern Calclate ... </span>
+        <span v-else>Pattern Output</span>
+      </button>
     </div>
 
-    <div v-if="patCount && sequenceArray">
-      <p></p>
-      <p>
+    <div v-if="patCount && sequenceArray" class="w-full max-w-fit px-5 py-5 my-5">
+      <label class="block text-gray-700 text-sm font-bold mb-2" for="sequence">
         パターン数 0から{{ patCount.length - 1 }}まで順に
-      </p>
+      </label>
       <p>
         {{ patCount }}
       </p>
     </div>
 
-    <div v-if="pattern && sequenceArray">
+    <div v-if="pattern && sequenceArray" class="w-full max-w-fit px-5 py-5 my-5">
       <template v-for="(v, k) in pattern" :key="k">
         <span>n = {{ k }}</span>
         <div class="w-full max-w-fit px-5 py-5 my-2 border" v-for="vv in v">

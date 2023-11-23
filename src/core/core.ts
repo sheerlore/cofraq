@@ -124,7 +124,7 @@ export function makeAdjMat(seq?: Sequence): AdjMat | undefined {
 }
 
 // パターンを列挙したオブジェクト作成
-export function calclatePattern(mat?: AdjMat): Patterns {
+export async function calclatePattern(mat?: AdjMat): Promise<Patterns> {
   if (mat === undefined) return {};
   const vertex_num = mat.length;
   // 0個とすべて埋めたパターン(vertex_num個)は決まっているので前もって入れておく
