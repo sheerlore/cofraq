@@ -26,7 +26,7 @@ describe("basic function", () => {
     { in: "2, 3, 3, 2", expected: [2, 3, 3, 2] },
     { in: "1, 2, 2, 1", expected: [1, 2, 2, 1] },
     { in: "1, 1, 1", expected: [1, 1, 1] },
-    { in: "", expected: [] },
+    { in: "", expected: undefined },
     { in: "１, ２, 1, 1", expected: [1, 2, 1, 1] },
     { in: "１, 1, 1, ２", expected: [1, 1, 1, 2] },
   ])("toNumberArray($in) -> $expected", (v) => {
