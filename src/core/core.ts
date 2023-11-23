@@ -1,9 +1,9 @@
-type InputString = string;
-type DisplayText = string;
-type Char = string;
-type Sequence = number[];
-type AdjMat = number[][];
-type Patterns = { [key: number]: number[][] };
+export type InputString = string;
+export type DisplayText = string;
+export type Char = string;
+export type Sequence = number[];
+export type AdjMat = number[][];
+export type Patterns = { [key: number]: number[][] };
 
 // ================================================
 // Display
@@ -15,8 +15,8 @@ export function toHalfWidth(c: Char): Char {
   );
 }
 
-export function toNumberArray(str: InputString): Sequence {
-  if (str === "") return [];
+export function toNumberArray(str: InputString): Sequence | undefined {
+  if (str === "") return undefined;
   return str.split(",").map(toHalfWidth).map(Number);
 }
 
@@ -28,34 +28,42 @@ export function twoSidesMinus(seq: Sequence): Sequence {
 
 const VW = "○";
 const VB = "●";
-export function makeGraphText(seq: Sequence): DisplayText {
-  if (seq.length === 0) return "";
-  let res = VW;
-  seq.forEach((num, index) => {
-    for (let i = 0; i < num; i++) {
-      res += index % 2 == 0 ? " ← " : " → ";
-      res += VW;
-    }
-  });
-  return res;
+export function makeGraphText(seq?: Sequence): DisplayText | undefined {
+  if (seq !== undefined && seq.length !== 0) {
+    let res = VW;
+    seq.forEach((num, index) => {
+      for (let i = 0; i < num; i++) {
+        res += index % 2 == 0 ? " ← " : " → ";
+        res += VW;
+      }
+    });
+    return res;
+  }
+  return undefined;
 }
 
-export function makePertternGraphText(
-  pet: Sequence,
-  seq: Sequence
-): DisplayText {
-  if (pet.length !== countVertex(seq)) return "";
-  if (seq.length === 0) return "";
-  let res = pet[0] === 1 ? VB : VW;
-  let pin = 1;
-  seq.forEach((num, index) => {
-    for (let i = 0; i < num; i++) {
-      res += index % 2 == 0 ? " ← " : " → ";
-      res += pet[pin] === 1 ? VB : VW;
-      pin++;
-    }
-  });
-  return res;
+export function makePatternGraphText(
+  pat?: Sequence,
+  seq?: Sequence
+): DisplayText | undefined {
+  if (
+    seq !== undefined &&
+    pat !== undefined &&
+    pat.length === countVertex(seq) &&
+    seq.length !== 0
+  ) {
+    let res = pat[0] === 1 ? VB : VW;
+    let pin = 1;
+    seq.forEach((num, index) => {
+      for (let i = 0; i < num; i++) {
+        res += index % 2 == 0 ? " ← " : " → ";
+        res += pat[pin] === 1 ? VB : VW;
+        pin++;
+      }
+    });
+    return res;
+  }
+  return undefined;
 }
 
 export function makeBWString(arr: number[]): DisplayText {
@@ -75,34 +83,44 @@ export function makeBWChar(num: number): DisplayText {
 // Graph
 // ================================================
 
-export function countVertex(seq: Sequence): number {
-  return seq.reduce((cur, ele) => cur + ele, 0) + 1;
+export function countVertex(seq?: Sequence): number {
+  if (seq !== undefined) {
+    return seq.reduce((cur, ele) => cur + ele, 0) + 1;
+  }
+  return 0;
 }
 
-export function countArrow(seq: Sequence): number {
-  return seq.reduce((cur, ele) => cur + ele, 0);
+export function countArrow(seq?: Sequence): number {
+  if (seq !== undefined) {
+    return seq.reduce((cur, ele) => cur + ele, 0);
+  }
+  return 0;
 }
 
 // 対応する隣接行列を作成する
-export function makeAdjMat(seq: Sequence): AdjMat | undefined {
-  if (seq.length === 0) return undefined;
-  const vertex_num = countVertex(seq);
-  const mat = [...Array(vertex_num)].map((_) => new Array(vertex_num).fill(0));
-  let pin = 0;
-  for (let i = 0; i < seq.length; i++) {
-    for (let j = 0; j < seq[i]; j++) {
-      let v = j + pin;
-      if (i % 2 == 0) {
-        // left arrow
-        mat[v + 1][v] = 1;
-      } else {
-        // right arrow
-        mat[v][v + 1] = 1;
+export function makeAdjMat(seq?: Sequence): AdjMat | undefined {
+  if (seq !== undefined && seq.length !== 0) {
+    const vertex_num = countVertex(seq);
+    const mat = [...Array(vertex_num)].map((_) =>
+      new Array(vertex_num).fill(0)
+    );
+    let pin = 0;
+    for (let i = 0; i < seq.length; i++) {
+      for (let j = 0; j < seq[i]; j++) {
+        let v = j + pin;
+        if (i % 2 == 0) {
+          // left arrow
+          mat[v + 1][v] = 1;
+        } else {
+          // right arrow
+          mat[v][v + 1] = 1;
+        }
       }
+      pin += seq[i];
     }
-    pin += seq[i];
+    return mat;
   }
-  return mat;
+  return undefined;
 }
 
 // パターンを列挙したオブジェクト作成
@@ -132,16 +150,16 @@ export function calclatePattern(mat?: AdjMat): Patterns {
     console.log("n =", n);
     res[n] = [];
     // n-1個のパターンを使って計算する
-    for (let prepet of res[n - 1]) {
+    for (let prepat of res[n - 1]) {
       // prepetに頂点を一つ追加して調べる
       for (let pos = 0; pos < vertex_num; pos++) {
-        if (prepet[pos] === 1) continue;
-        prepet[pos] = 1; // 1を挿入
-        let candidate_pet = Array.from(prepet);
-        if (checkRange(mat, candidate_pet) && !inArray(res[n], candidate_pet)) {
-          res[n].push(candidate_pet);
+        if (prepat[pos] === 1) continue;
+        prepat[pos] = 1; // 1を挿入
+        let candidate_pat = Array.from(prepat);
+        if (checkRange(mat, candidate_pat) && !inArray(res[n], candidate_pat)) {
+          res[n].push(candidate_pat);
         }
-        prepet[pos] = 0; // 操作を戻す
+        prepat[pos] = 0; // 操作を戻す
       }
     }
   }
@@ -190,43 +208,43 @@ function checkOneRight(mat: AdjMat, v: number): boolean {
 }
 
 function checkRange(mat: AdjMat, vs: number[]): boolean {
-  console.log("This", vs);
   let s = vs.indexOf(1);
   let t = s;
   while (true) {
     let temp_t = vs.indexOf(1, t + 1);
-    console.log("TOP", s, t, temp_t);
     if (temp_t === -1) {
-      console.log("temp_t === -1");
       if (s !== t) {
-        console.log("D", s, t, temp_t);
-        console.log(checkOneLeft(mat, s), checkOneRight(mat, t));
         return checkOneLeft(mat, s) && checkOneRight(mat, t);
       }
       if (s === t) {
-        console.log("E", s, t, temp_t);
         return checkOne(mat, s);
       }
     }
     // 中間
     if (temp_t !== -1) {
-      console.log("temp_t !== -1");
       if (temp_t === t + 1) {
-        console.log("A", s, t, temp_t);
         t = temp_t;
       } else if (temp_t !== t + 1) {
-        console.log("B", s, t, temp_t);
-        console.log(checkOneLeft(mat, s), checkOneRight(mat, t));
         if (!checkOneLeft(mat, s)) return false;
         if (!checkOneRight(mat, t)) return false;
         s = temp_t;
         t = s;
       } else {
-        console.log("C", s, t, temp_t);
         if (!checkOne(mat, s)) return false;
         s = temp_t;
         t = s;
       }
     }
   }
+}
+
+export function countPatternsNum(pat?: Patterns): Sequence | undefined {
+  if (pat !== undefined) {
+    let res = [];
+    for (let key in pat) {
+      res[Number(key)] = pat[key].length;
+    }
+    return res;
+  }
+  return undefined;
 }
