@@ -147,7 +147,6 @@ export async function calclatePattern(mat?: AdjMat): Promise<Patterns> {
 
   // n = 2, ..., (vertex_num-1)の間で調べる
   for (let n = 2; n <= vertex_num - 1; n++) {
-    console.log("n =", n);
     res[n] = [];
     // n-1個のパターンを使って計算する
     for (let prepat of res[n - 1]) {
