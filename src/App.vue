@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { makeAdjMat, makeGraphText, toNumberArray, calclatePattern, AdjMat, Patterns, makePatternGraphText, countPatternsNum } from './core/core.ts'
+import { makeAdjMat, makeGraphText, toNumberArray, calclatePattern, AdjMat, Patterns, makePatternGraphText, countPatternsNum, countVertex, countArrow } from './core/core.ts'
 
 const sequenceText = ref("")
 const sequenceArray = computed(() => toNumberArray(sequenceText.value))
 const graph = computed(() => makeGraphText(sequenceArray.value))
 const mat = computed(() => makeAdjMat(sequenceArray.value))
+const vertex_num = computed(() => countVertex(sequenceArray.value))
+const arrow_num = computed(() => countArrow(sequenceArray.value))
 const pattern = ref<Patterns | undefined>()
 const patCount = ref()
 const isLoading = ref(false)
@@ -42,15 +44,24 @@ async function patternCalclate(mat?: AdjMat) {
         id="sequence" type="text" placeholder="1, 2, 3" v-model="sequenceText" />
     </div>
 
+    <div v-if="sequenceArray" class="w-full max-w-fit px-5 py-5">
+      <label class="block text-gray-700 text-sm font-bold mb-2">
+        頂点の数 : {{ vertex_num }}
+      </label>
+      <label class="block text-gray-700 text-sm font-bold mb-2">
+        矢の数 : {{ arrow_num }}
+      </label>
+    </div>
+
     <div v-if="graph" class="w-full max-w-fit px-5 py-5 my-5 border">
-      <label class="block text-gray-700 text-sm font-bold mb-2" for="sequence">
+      <label class="block text-gray-700 text-sm font-bold mb-2">
         グラフ
       </label>
       {{ graph }}
     </div>
 
     <div v-if="mat" class="w-full max-w-fit px-5 py-5 my-5 border">
-      <label class="block text-gray-700 text-sm font-bold mb-2" for="sequence">
+      <label class="block text-gray-700 text-sm font-bold mb-2">
         隣接行列
       </label>
       <table>
@@ -70,7 +81,7 @@ async function patternCalclate(mat?: AdjMat) {
     </div>
 
     <div v-if="patCount && sequenceArray" class="w-full max-w-fit px-5 py-5 my-5">
-      <label class="block text-gray-700 text-sm font-bold mb-2" for="sequence">
+      <label class="block text-gray-700 text-sm font-bold mb-2">
         パターン数 0から{{ patCount.length - 1 }}まで順に
       </label>
       <p>
