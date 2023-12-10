@@ -302,3 +302,29 @@ export async function isIrreducible(coefficient: number[]): Promise<boolean> {
     n += 1;
   }
 }
+
+export function createExpString(arr: Sequence | undefined) {
+  if (arr === undefined) return "";
+  let exp = `${arr[0]} + `;
+  for (let i = 1; i < arr.length; i++) {
+    if (i == 1) {
+      exp += `${arr[i]}x + `;
+      continue;
+    }
+    if (i == arr.length - 1) {
+      exp += `x^${i}`;
+      continue;
+    }
+    exp += `${arr[i]}x^${i} + `;
+  }
+  return exp;
+}
+
+export function createWolframURL(arr: Sequence | undefined) {
+  if (arr === undefined) return "";
+  const exp = createExpString(arr);
+  const url = new URL("https://www.wolframalpha.com/input");
+  url.searchParams.set("i", `因数分解 ${exp}`);
+  url.searchParams.set("lang", "ja");
+  return url.toString();
+}
