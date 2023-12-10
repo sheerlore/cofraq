@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
-import { makeAdjMat, makeGraphText, toNumberArray, calclatePattern, AdjMat, makePatternGraphText, countPatternsNum, countVertex, countArrow } from './core/core.ts'
+import { computed, ref } from 'vue';
+import { makeAdjMat, makeGraphText, toNumberArray, calclatePattern, AdjMat, makePatternGraphText, countPatternsNum, countVertex, countArrow, isIrreducible } from './core/core.ts'
 
 const sequenceText = ref("")
 // 自動で計算する部分
@@ -13,29 +13,28 @@ const arrow_num = computed(() => countArrow(sequenceArray.value))
 // Pattern計算後に入力される部分
 const pattern = ref()
 const patternCount = ref()
+const isIrr = ref()
 
 // その他
 const isLoading = ref(false)
+const isDisplay = ref(false)
 const matToggle = ref(false)
 const graphToggle = ref(true)
 const patternToggle = ref(false)
 
-watch(sequenceArray, () => {
-  pattern.value = undefined
-  patternCount.value = undefined
-})
-
 const tableColor = (ch: number) => ch === 1 ? "bg-red-400" : "";
 
 async function patternCalclate(mat?: AdjMat) {
-  console.log("CALL patternCalclate")
   if (mat === undefined) return
+  isDisplay.value = false
   isLoading.value = true
   pattern.value = await calclatePattern(mat);
+  patternCount.value = await countPatternsNum(pattern.value)
+  isIrr.value = await isIrreducible(patternCount.value)
   setTimeout(() => {
     isLoading.value = false
-    patternCount.value = countPatternsNum(pattern.value)
-  }, 1000);
+    isDisplay.value = true
+  }, 1500);
 }
 
 </script>
@@ -53,7 +52,7 @@ async function patternCalclate(mat?: AdjMat) {
             <input @keypress.enter="patternCalclate(mat)" class="input-text" id="sequence" type="text"
               placeholder="1, 2, 3" required v-model="sequenceText" />
           </div>
-          <input type="button" @click="patternCalclate(mat)" value="Calclate Pattern" class="input-button" />
+          <input type="button" @click="patternCalclate(mat)" value="Calclate" class="input-button" />
         </form>
       </div>
       <div class="w-full p-5">
@@ -86,16 +85,21 @@ async function patternCalclate(mat?: AdjMat) {
           </label>
         </div>
         <label class="block text-gray-700 text-sm font-bold mb-4 p-2">
-          整数係数多項式の係数部 (定数項から) ===============
+          == 整数係数多項式の係数部 (定数項から) ==
         </label>
         <div v-if="isLoading" class="flex space-x-2 p-2">
           <div class="animate-bounce  h-2 w-2 bg-blue-600 rounded-full"></div>
           <div class="animate-bounce  h-2 w-2 bg-blue-600 rounded-full animation-delay-200"></div>
           <div class="animate-bounce  h-2 w-2 bg-blue-600 rounded-full animation-delay-400"></div>
         </div>
-        <span v-if="pattern">
-          {{ patternCount }}
-        </span>
+        <div v-if="isDisplay">
+          <label class="block text-gray-700 text-sm font-bold mb-4 p-2">
+            係数: {{ patternCount }}
+          </label>
+          <label class="block text-gray-700 text-sm font-bold mb-4 p-2">
+            Z[x]上既約か可約か: {{ isIrr ? "既約" : "可約" }}
+          </label>
+        </div>
       </div>
 
     </div>

@@ -237,7 +237,9 @@ function checkRange(mat: AdjMat, vs: number[]): boolean {
   }
 }
 
-export function countPatternsNum(pat?: Patterns): Sequence | undefined {
+export async function countPatternsNum(
+  pat?: Patterns
+): Promise<Sequence | undefined> {
   if (pat !== undefined) {
     let res = [];
     for (let key in pat) {
@@ -246,4 +248,57 @@ export function countPatternsNum(pat?: Patterns): Sequence | undefined {
     return res;
   }
   return undefined;
+}
+
+// 今回は扱う数の範囲から整数の範囲を超えたものは基本的に可約であると判断する
+// 可約の場合エラーが出る。
+const safeIntegerError = new Error("安全な整数の範囲を超えました");
+
+function isPrime(num: number): boolean {
+  if (!Number.isSafeInteger(num)) {
+    throw safeIntegerError;
+  }
+  if (num < 2) return false;
+  if (num === 2) return true;
+  if (num % 2 === 0) return false;
+  const sqrtNum = Math.floor(Math.sqrt(num));
+  for (let i = 3; i <= sqrtNum; i += 2) {
+    if (num % i === 0) return false;
+  }
+
+  return true;
+}
+
+// Murtyの既約判定法を用いる ===================
+// f(x) = a0 + a1x + a2x^2 + ... + adx^d <- Z[x]
+// H = max |a_i / a_d | (i = 0,...,d-1)
+// n >= H+2となる整数nに対しf(n)が素数となるとき、f(x)は
+// Z[x]上で既約
+// INPUT =======================
+// 係数を小さい順から配列で受け取る
+// [a0, a1, a2, ... , an]
+// 条件 =========================
+// 今回は最大次数が1と決まっているのでモニックなものしか入らない
+export async function isIrreducible(coefficient: number[]): Promise<boolean> {
+  const H = coefficient
+    .slice(0, -1)
+    .reduce((prev, cur) => Math.max(Math.abs(prev), Math.abs(cur)), 0);
+  console.log("H = ", H);
+  let n = H + 2;
+  while (true) {
+    let f = coefficient[0];
+    for (let i = 1; i < coefficient.length; i++) {
+      f += coefficient[i] * Math.pow(n, i);
+    }
+    try {
+      console.log("n = ", n, "f = ", f);
+      if (isPrime(f)) {
+        return true;
+      }
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+    n += 1;
+  }
 }

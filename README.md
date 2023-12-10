@@ -8,8 +8,6 @@
 
 [https://sheerlore.github.io/cofraq/](https://sheerlore.github.io/cofraq/)
 
-![Image](image.png)
-
 ## 例
 
 1. 有理数？の連分数展開する
@@ -89,3 +87,19 @@ $f(x) \in \mathbb{Z}[x] $をモニックかつ $deg f \ge 1 $ とする。この
 (1) $f(x)$ は　$\mathbb{Z} $上 既約である。
 
 (2) $f(x)$ は　$\mathbb{Q} $上 既約である。
+
+実際に既約かどうか判定するにはMurtyの既約判定法を用いることにする。これは数を大きくしていって度々素数かどうか判断しなくてはならないが、数の範囲的に（これはあくまで予想だが）JavaScriptが扱う整数の範囲(Number.MAX_SAFE_INTEGER)以内に収まると判断したため、この数以上になった場合には可約であるとする。なので正確性は保証できない。
+
+定理 (Murtyの既約判定法)
+
+$f(x) = a_dx^d + a_{d-1}x^{d-1} + \cdots + a_1x + a_0 \in \mathbb {Z}[x]$　を d次の多項式、
+
+$$
+H = \max_{0 \ge i \ge d-1}  |a_i / a_d |
+$$
+
+とする。$n \ge H + 2$ となる整数 $n $に対し $f(n)$ が素数となるとき、$ f(x) $は $\mathbb{Z}[x]$ 上で既約である。
+
+## 参考URL
+
+[Murtyの既約判定法 - 現実と数学の区別が付かない - はてなブログ](https://egory-cat.hatenablog.com/entry/2018/09/30/011549#:~:text=%E3%81%A8%E3%81%99%E3%82%8B%E3%80%82,%E3%81%A8%E3%81%97%E3%81%A6%E6%97%A2%E7%B4%84%E3%81%A7%E3%81%82%E3%82%8B%E3%80%82)
