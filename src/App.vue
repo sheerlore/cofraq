@@ -26,9 +26,13 @@ const patternToggle = ref(false)
 
 watch(sequenceArray, () => {
   isDisplay.value = false
+  pattern.value = undefined
+  patternCount.value = undefined
+  isIrr.value = undefined
 })
 
 const tableColor = (ch: number) => ch === 1 ? "bg-red-400" : "";
+const badgeColor = (ch: boolean) => ch ? "badge-green" : "badge-indigo";
 
 async function patternCalclate(mat?: AdjMat) {
   if (mat === undefined) return
@@ -48,8 +52,8 @@ async function patternCalclate(mat?: AdjMat) {
 <template>
   <main class="flex flex-col items-center">
     <!-- 入力部 -->
-    <div class="w-full border flex">
-      <div class="min-w-fit border p-5">
+    <div class="w-full border border-collapse flex">
+      <div class="min-w-fit border border-collapse p-5">
         <form onsubmit="return false">
           <div class="mb-5">
             <label class="input-label" for="sequence">
@@ -61,7 +65,7 @@ async function patternCalclate(mat?: AdjMat) {
           <input type="button" @click="patternCalclate(mat)" value="Calclate" class="input-button" />
         </form>
       </div>
-      <div class="w-5/6 p-5">
+      <div class="w-fit max-w-6xl p-4">
         <div class="flex">
           <div class="flex items-center mb-4 p-2">
             <input type="checkbox" v-model="graphToggle" id="graphCheckBox" class="input-checkbox" />
@@ -90,26 +94,27 @@ async function patternCalclate(mat?: AdjMat) {
             矢の数 : {{ arrow_num }}
           </label>
         </div>
-        <label class="block text-gray-700 text-sm font-bold p-2">
-          == 整数係数多項式の係数部 (定数項から) ==
-        </label>
-        <div v-if="isLoading" class="flex space-x-2 p-2">
-          <div class="animate-bounce  h-2 w-2 bg-blue-600 rounded-full"></div>
-          <div class="animate-bounce  h-2 w-2 bg-blue-600 rounded-full animation-delay-200"></div>
-          <div class="animate-bounce  h-2 w-2 bg-blue-600 rounded-full animation-delay-400"></div>
-        </div>
-        <div v-if="isDisplay">
-          <label class="block text-gray-700 text-sm font-bold p-2">
-            係数: {{ patternCount }}
+        <div class="border p-2">
+          <label class="block text-gray-700 font-bold p-2">
+            計算結果
           </label>
-          <label class="block text-gray-700 text-sm font-bold p-2">
-            式: {{ expString }}
-          </label>
-          <label class="block text-gray-700 text-sm font-bold p-2">
-            Z[x]上既約か可約か: {{ isIrr ? "既約" : "可約" }}
-          </label>
-          <div
-            class="block max-w-screen-lg text-sm border p-4 rounded-sm whitespace-nowrap overflow-hidden text-ellipsis">
+          <div v-if="isLoading" class="flex space-x-2 p-2">
+            <div class="animate-bounce  h-2 w-2 bg-blue-600 rounded-full"></div>
+            <div class="animate-bounce  h-2 w-2 bg-blue-600 rounded-full animation-delay-200"></div>
+            <div class="animate-bounce  h-2 w-2 bg-blue-600 rounded-full animation-delay-400"></div>
+          </div>
+          <div v-if="isDisplay">
+            <label class="block text-gray-700 text-sm font-bold p-2">
+              係数: {{ patternCount }}
+            </label>
+            <label class="block text-gray-700 text-sm font-bold p-2">
+              式: {{ expString }}
+            </label>
+            <label class="block text-gray-700 text-sm font-bold p-2">
+              <span :class="badgeColor(isIrr)">{{ isIrr ? "既約" : "可約" }} </span>
+            </label>
+          </div>
+          <div v-if="isDisplay" class="block text-sm p-4 rounded-sm whitespace-nowrap overflow-hidden text-ellipsis">
             <p class="text-gray-500 dark:text-gray-400">Wolfram上で多項式を確かめる</p>
             <a class=" text-blue-600 underline dark:text-blue-500 hover:no-underline" :href="wolframURL"
               target="_blank">{{ wolframURL }}</a>
@@ -138,7 +143,7 @@ async function patternCalclate(mat?: AdjMat) {
       </div>
       <!-- パターン -->
       <div class="w-full p-5">
-        <div v-if="patternToggle">
+        <div v-if="pattern && patternToggle">
           <template v-for="(v, k) in pattern" :key="k">
             <span>n = {{ k }}</span>
             <div class="w-full max-w-fit px-5 py-5 my-2 border" v-for="vv in v">
