@@ -21,9 +21,10 @@ export function toNumberArray(str: InputString): Sequence | undefined {
 }
 
 export function twoSidesMinus(seq: Sequence): Sequence {
-  seq[0] -= 1;
-  seq[seq.length - 1] -= 1;
-  return seq;
+  const res = [...seq];
+  res[0] -= 1;
+  res[res.length - 1] -= 1;
+  return res;
 }
 
 const VW = "○";
@@ -307,15 +308,17 @@ export function createExpString(arr: Sequence | undefined) {
   if (arr === undefined) return "";
   let exp = `${arr[0]} + `;
   for (let i = 1; i < arr.length; i++) {
+    let c = "";
+    if (arr[i] !== 1) c = String(arr[i]);
     if (i == 1) {
-      exp += `${arr[i]}x + `;
+      exp += `${c}x + `;
       continue;
     }
     if (i == arr.length - 1) {
       exp += `x^${i}`;
       continue;
     }
-    exp += `${arr[i]}x^${i} + `;
+    exp += `${c}x^${i} + `;
   }
   return exp;
 }
@@ -327,4 +330,43 @@ export function createWolframURL(arr: Sequence | undefined) {
   url.searchParams.set("i", `因数分解 ${exp}`);
   url.searchParams.set("lang", "ja");
   return url.toString();
+}
+
+function gcd(a: number, b: number): number {
+  while (b !== 0) {
+    const temp = b;
+    b = a % b;
+    a = temp;
+  }
+  return a;
+}
+
+export function rationalToContinuedFraction(
+  numerator: number,
+  denominator: number
+): number[] {
+  const result: number[] = [];
+  let _numerator = numerator;
+  let _denominator = denominator;
+  while (_denominator !== 0) {
+    const quotient = Math.floor(_numerator / _denominator);
+    result.push(quotient);
+
+    const newNumerator = _denominator;
+    _denominator = _numerator - quotient * _denominator;
+    _numerator = newNumerator;
+
+    const commonDivisor = gcd(_numerator, _denominator);
+    _numerator /= commonDivisor;
+    _denominator /= commonDivisor;
+  }
+  if (result[result.length - 1] !== 1) {
+    result[result.length - 1] -= 1;
+    result.push(1);
+  }
+  if (numerator < denominator) {
+    result.shift();
+  }
+
+  return result;
 }

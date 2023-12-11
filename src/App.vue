@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { makeAdjMat, makeGraphText, toNumberArray, calclatePattern, AdjMat, makePatternGraphText, countPatternsNum, countVertex, countArrow, isIrreducible, createWolframURL, createExpString } from './core/core.ts'
+import { twoSidesMinus, makeAdjMat, makeGraphText, toNumberArray, calclatePattern, AdjMat, makePatternGraphText, countPatternsNum, countVertex, countArrow, isIrreducible, createWolframURL, createExpString, rationalToContinuedFraction } from './core/core.ts'
 
 const sequenceText = ref("")
+const numeratorNum = ref(0)
+const denominatorNum = ref(0)
 // 自動で計算する部分
 const sequenceArray = computed(() => toNumberArray(sequenceText.value))
 const graph = computed(() => makeGraphText(sequenceArray.value))
 const mat = computed(() => makeAdjMat(sequenceArray.value))
 const vertex_num = computed(() => countVertex(sequenceArray.value))
 const arrow_num = computed(() => countArrow(sequenceArray.value))
+const continuedFracionSequenceArray = ref();
 
 // Pattern計算後に入力される部分
 const pattern = ref()
@@ -30,9 +33,21 @@ watch(sequenceArray, () => {
   patternCount.value = undefined
   isIrr.value = undefined
 })
+watch([numeratorNum, denominatorNum], () => {
+  if (numeratorNum.value != 0 && denominatorNum.value != 0) {
+    continuedFracionSequenceArray.value = rationalToContinuedFraction(numeratorNum.value, denominatorNum.value)
+  } else {
+    continuedFracionSequenceArray.value = undefined
+  }
+})
 
 const tableColor = (ch: number) => ch === 1 ? "bg-red-400" : "";
 const badgeColor = (ch: boolean) => ch ? "badge-green" : "badge-indigo";
+
+function createSequenceFromFraction(seq: number[]) {
+  if (seq === undefined) return
+  sequenceText.value = twoSidesMinus(seq).toString();
+}
 
 async function patternCalclate(mat?: AdjMat) {
   if (mat === undefined) return
@@ -52,18 +67,41 @@ async function patternCalclate(mat?: AdjMat) {
 <template>
   <main class="flex flex-col items-center">
     <!-- 入力部 -->
-    <div class="w-full border border-collapse flex">
+    <div class="w-full border-collapse flex">
       <div class="min-w-fit border border-collapse p-5">
-        <form onsubmit="return false">
-          <div class="mb-5">
-            <label class="input-label" for="sequence">
-              数列入力
-            </label>
-            <input @keypress.enter="patternCalclate(mat)" class="input-text" id="sequence" type="text"
-              placeholder="1, 2, 3" required v-model="sequenceText" />
-          </div>
-          <input type="button" @click="patternCalclate(mat)" value="Calclate" class="input-button" />
-        </form>
+        <div class="mb-5">
+          <form onsubmit="return false">
+            <div class="mb-5">
+              <label class="input-label" for="fraction">
+                有理数入力
+              </label>
+              <span class="text-xs">分子</span>
+              <input @keypress.enter="" class="input-text" id="fraction" type="number" v-model="numeratorNum" />
+              <span class="text-xs">分母</span>
+              <input @keypress.enter="" class="input-text" id="fraction" type="number" v-model="denominatorNum" />
+            </div>
+            <div class="mb-5">
+              <span class="text-xs">連分数展開</span><br>
+              {{ continuedFracionSequenceArray }}
+            </div>
+            <input type="button" @click="createSequenceFromFraction(continuedFracionSequenceArray)" value="↓"
+              class="input-button" />
+            <span class="text-xs text-gray-500">※ 両側が-1されます</span>
+          </form>
+        </div>
+        <hr>
+        <div class="pt-5">
+          <form onsubmit="return false">
+            <div class="mb-5">
+              <label class="input-label" for="sequence">
+                数列入力
+              </label>
+              <input @keypress.enter="patternCalclate(mat)" class="input-text" id="sequence" type="text"
+                placeholder="1, 2, 3" required v-model="sequenceText" />
+            </div>
+            <input type="button" @click="patternCalclate(mat)" value="Calclate" class="input-button2" />
+          </form>
+        </div>
       </div>
       <div class="w-fit max-w-6xl p-4">
         <div class="flex">
@@ -87,12 +125,17 @@ async function patternCalclate(mat?: AdjMat) {
           </div>
         </div>
         <div class="flex">
-          <label class="block text-gray-700 text-sm font-bold mb-4 p-2">
+          <label class="block text-gray-700 text-sm font-bold p-2">
             頂点の数 : {{ vertex_num }}
           </label>
-          <label class="block text-gray-700 text-sm font-bold mb-4 p-2">
+          <label class="block text-gray-700 text-sm font-bold p-2">
             矢の数 : {{ arrow_num }}
           </label>
+        </div>
+        <div class="w-full p-5">
+          <span v-if="graphToggle">
+            {{ graph }}
+          </span>
         </div>
         <div class="border p-2">
           <label class="block text-gray-700 font-bold p-2">
@@ -126,11 +169,7 @@ async function patternCalclate(mat?: AdjMat) {
     <!-- 出力部 -->
     <div>
       <!-- グラフ -->
-      <div class="w-full p-5">
-        <span v-if="graphToggle">
-          {{ graph }}
-        </span>
-      </div>
+
       <!-- 隣接行列 -->
       <div class="w-full p-5">
         <table v-if="matToggle">
