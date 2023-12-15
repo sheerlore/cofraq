@@ -27,6 +27,18 @@ export function twoSidesMinus(seq: Sequence): Sequence {
   return res;
 }
 
+export function sideZeroRej(seq?: Sequence): Sequence {
+  if (seq === undefined) return [];
+  let res = [...seq];
+  if (res[0] === 0) {
+    res = res.slice(1);
+  }
+  if (res[res.length - 1] === 0) {
+    res = res.slice(0, res.length - 1);
+  }
+  return res;
+}
+
 const VW = "○";
 const VB = "●";
 export function makeGraphText(seq?: Sequence): DisplayText | undefined {
@@ -251,10 +263,6 @@ export async function countPatternsNum(
   return undefined;
 }
 
-// 今回は扱う数の範囲から整数の範囲を超えたものは基本的に可約であると判断する
-// 可約の場合エラーが出る。
-const safeIntegerError = new Error("安全な整数の範囲を超えました");
-
 function isPrime(num: number): boolean {
   if (!Number.isSafeInteger(num)) {
     throw safeIntegerError;
@@ -270,7 +278,30 @@ function isPrime(num: number): boolean {
   return true;
 }
 
-// Murtyの既約判定法を用いる ===================
+// エラストテネスの篩
+function sieveOfEratosthenes(N: number): number[] {
+  console.log("sieve N = ", N);
+  let isPrimeArr = new Array(N + 1).fill(true);
+  for (let p = 2; p * p <= N; p++) {
+    if (isPrimeArr[p] == true) {
+      for (let i = p * p; i <= N; i += p) {
+        isPrimeArr[i] = false;
+      }
+    }
+  }
+  let prime = [];
+  for (let i = 2; i <= N; i++) {
+    if (isPrimeArr[i]) {
+      prime.push(i);
+    }
+  }
+  return prime;
+}
+// 今回は扱う数の範囲から整数の範囲を超えたものは基本的に可約であると判断する
+// 可約の場合エラーが出る。
+const safeIntegerError = new Error("安全な整数の範囲を超えました");
+
+// Murtyの既約判定法 ===================
 // f(x) = a0 + a1x + a2x^2 + ... + adx^d <- Z[x]
 // H = max |a_i / a_d | (i = 0,...,d-1)
 // n >= H+2となる整数nに対しf(n)が素数となるとき、f(x)は
@@ -304,6 +335,66 @@ export async function isIrreducible(coefficient: number[]): Promise<boolean> {
   }
 }
 
+// Eisensteinの既約判定法
+// f(x) = a0 + a1x + a2x^2 + ... + anx^n <- Z[x]
+// 素数Pが存在して、
+// 　Pはanを割り切れない (pの倍数でない)
+// 　Pはすべての他のan-1, ... , a0を割り切れる（pの倍数である)
+// 　P^2はa0を割り切れない (pの倍数でない)
+// ならf(x)はQ上既約
+// INPUT =======================
+// 係数を小さい順から配列で受け取る
+// [a0, a1, a2, ... , an]
+// 条件 =========================
+// 今回は最大次数が1と決まっているのでモニックなものしか入らない
+// したがって「Pはanを割り切れない（Pの倍数でない）」はOK
+function checkEisenstein(arr: number[], P: number, N: number): boolean {
+  if (arr[0] % P === 0) {
+    return false;
+  }
+  for (let i = 1; i < N; i++) {
+    if (arr[i] % P !== 0) {
+      return false;
+    }
+  }
+  if (arr[N - 1] % (P * P) === 0) {
+    return false;
+  }
+  return true;
+}
+export async function isIrreducible2(coefficient: number[]): Promise<boolean> {
+  console.log("アイゼンシュタインの既約判定法 === ", coefficient);
+  const N = coefficient.length;
+  const rcoef = [...coefficient].reverse();
+  console.log("RCOEF: ", rcoef);
+  let M = -1;
+  // Find the maximum element in rcoef
+  for (let i = 0; i < N; i++) {
+    M = Math.max(M, rcoef[i]);
+  }
+  console.log("M = ", M);
+  let primes = sieveOfEratosthenes(M * M * M);
+
+  // Check if any prime satisfies the conditions
+  for (let i = 0; i < primes.length; i++) {
+    if (checkEisenstein(rcoef, primes[i], N)) {
+      console.log(
+        "アイゼンシュタインの既約判定法により、次の素数で満たします P = ",
+        primes[i]
+      );
+      return true;
+    }
+  }
+  console.log("NON IRR");
+  return false;
+}
+
+export async function checkIrr(coefficient: number[]): Promise<boolean> {
+  const r1 = await isIrreducible(coefficient);
+  // const r2 = await isIrreducible2(coefficient);
+  return r1;
+}
+
 export function createExpString(arr: Sequence | undefined) {
   if (arr === undefined) return "";
   let exp = `${arr[0]} + `;
@@ -323,11 +414,12 @@ export function createExpString(arr: Sequence | undefined) {
   return exp;
 }
 
+// Woldram上で既約多項式か判定するためのURL
 export function createWolframURL(arr: Sequence | undefined) {
   if (arr === undefined) return "";
   const exp = createExpString(arr);
   const url = new URL("https://www.wolframalpha.com/input");
-  url.searchParams.set("i", `因数分解 ${exp}`);
+  url.searchParams.set("i", `IrreduciblePolynomialQ[ ${exp} ]`);
   url.searchParams.set("lang", "ja");
   return url.toString();
 }
@@ -341,6 +433,7 @@ function gcd(a: number, b: number): number {
   return a;
 }
 
+// 有理数の連分数展開
 export function rationalToContinuedFraction(
   numerator: number,
   denominator: number

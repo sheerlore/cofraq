@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { twoSidesMinus, makeAdjMat, makeGraphText, toNumberArray, calclatePattern, AdjMat, makePatternGraphText, countPatternsNum, countVertex, countArrow, isIrreducible, createWolframURL, createExpString, rationalToContinuedFraction } from './core/core.ts'
+import { sideZeroRej, twoSidesMinus, makeAdjMat, makeGraphText, toNumberArray, calclatePattern, AdjMat, makePatternGraphText, countPatternsNum, countVertex, countArrow, checkIrr, createWolframURL, createExpString, rationalToContinuedFraction } from './core/core.ts'
 
 const sequenceText = ref("")
 const numeratorNum = ref(0)
 const denominatorNum = ref(0)
 // 自動で計算する部分
-const sequenceArray = computed(() => toNumberArray(sequenceText.value))
+const sequenceArray = computed(() => sideZeroRej(toNumberArray(sequenceText.value)))
 const graph = computed(() => makeGraphText(sequenceArray.value))
 const mat = computed(() => makeAdjMat(sequenceArray.value))
 const vertex_num = computed(() => countVertex(sequenceArray.value))
@@ -46,7 +46,7 @@ const badgeColor = (ch: boolean) => ch ? "badge-green" : "badge-indigo";
 
 function createSequenceFromFraction(seq: number[]) {
   if (seq === undefined) return
-  sequenceText.value = twoSidesMinus(seq).toString();
+  sequenceText.value = sideZeroRej(twoSidesMinus(seq)).toString();
 }
 
 async function patternCalclate(mat?: AdjMat) {
@@ -55,7 +55,7 @@ async function patternCalclate(mat?: AdjMat) {
   isLoading.value = true
   pattern.value = await calclatePattern(mat);
   patternCount.value = await countPatternsNum(pattern.value)
-  isIrr.value = await isIrreducible(patternCount.value)
+  isIrr.value = await checkIrr(patternCount.value)
   setTimeout(() => {
     isLoading.value = false
     isDisplay.value = true
@@ -72,13 +72,13 @@ async function patternCalclate(mat?: AdjMat) {
         <div class="mb-5">
           <form onsubmit="return false">
             <div class="mb-5">
-              <label class="input-label" for="fraction">
+              <label class="input-label">
                 有理数入力
               </label>
-              <span class="text-xs">分子</span>
-              <input @keypress.enter="" class="input-text" id="fraction" type="number" v-model="numeratorNum" />
-              <span class="text-xs">分母</span>
-              <input @keypress.enter="" class="input-text" id="fraction" type="number" v-model="denominatorNum" />
+              <label for="fraction1" class="text-xs">分子</label>
+              <input @keypress.enter="" class="input-text" id="fraction1" type="number" v-model="numeratorNum" />
+              <label for="fraction2" class="text-xs">分母</label>
+              <input @keypress.enter="" class="input-text" id="fraction2" type="number" v-model="denominatorNum" />
             </div>
             <div class="mb-5">
               <span class="text-xs">連分数展開</span><br>
@@ -86,7 +86,7 @@ async function patternCalclate(mat?: AdjMat) {
             </div>
             <input type="button" @click="createSequenceFromFraction(continuedFracionSequenceArray)" value="↓"
               class="input-button" />
-            <span class="text-xs text-gray-500">※ 両側が-1されます</span>
+            <span class="text-xs text-gray-500">※ 両側が-1されて、0の場合取り除かれます</span>
           </form>
         </div>
         <hr>
@@ -154,11 +154,12 @@ async function patternCalclate(mat?: AdjMat) {
               式: {{ expString }}
             </label>
             <label class="block text-gray-700 text-sm font-bold p-2">
-              <span :class="badgeColor(isIrr)">{{ isIrr ? "既約" : "可約" }} </span>
+              <span :class="badgeColor(isIrr)">{{ isIrr ? "既約" : "多分可約" }} </span>
+              <span class="text-xs text-gray-500">※ まだ既約判定を決定的にしているわけではないので、既約なのに可約と表示される場合があります。</span>
             </label>
           </div>
           <div v-if="isDisplay" class="block text-sm p-4 rounded-sm whitespace-nowrap overflow-hidden text-ellipsis">
-            <p class="text-gray-500 dark:text-gray-400">Wolfram上で多項式を確かめる</p>
+            <p class="text-gray-500 dark:text-gray-400">Wolfram上で多項式が既約かどうか確かめる</p>
             <a class=" text-blue-600 underline dark:text-blue-500 hover:no-underline" :href="wolframURL"
               target="_blank">{{ wolframURL }}</a>
           </div>
